@@ -2,6 +2,27 @@ import argparse
 from contact import Contact
 from user import User
 from contact_manager import ContactManager
+from admin import Admin
+
+
+def register_admin():
+    admin_username = input("Enter admin username: ")
+    admin_password = input("Enter admin password: ")
+    admin_email = input("Enter admin email: ")
+    admin = Admin(admin_username, admin_password, admin_email)
+    contact_manager.add_admin(admin)
+    print("Admin registered successfully!")
+
+
+def login_admin():
+    admin_username = input("Enter Admin username: ")
+    admin_password = input("Enter Admin password: ")
+    if contact_manager.authenticate_admin(admin_username, admin_password):
+        print("Login successful!")
+        return admin_username
+    else:
+        print("Invalid Admin username or password!")
+        return None
 
 
 def register_user():
@@ -22,6 +43,30 @@ def login_user():
     else:
         print("Invalid username or password!")
         return None
+
+
+def edit_user():
+    old_user = input("Enter user's name to edit: ")
+    new_user = input("Enter new user: ")
+    new_email = input("Enter new email: ")
+    new_user = User(new_user, new_email)
+    contact_manager.edit_user(old_user, new_user)
+    print("Contact edited successfully!")
+
+
+def delete_user():
+    username = input("Enter username to delete: ")
+    ContactManager.delete_user(username)
+    print(f"User '{username}' deleted successfully!")
+
+
+def view_users():
+    users = contact_manager.view_all_users()
+    if users:
+        for user in users:
+            print(user)
+    else:
+        print("No users available.")
 
 
 def add_contact():
@@ -74,27 +119,65 @@ def search_contacts(choice):
 
 
 parser = argparse.ArgumentParser()
+parser.add_argument("--admins-file", help="File to load/save admins", default="admins.pkl")
 parser.add_argument("--contacts-file", help="File to load/save contacts", default="contacts.pkl")
 parser.add_argument("--users-file", help="File to load/save users", default="users.pkl")
-parser.add_argument("--register", action="store_true", help="Register a new user")
-parser.add_argument("--login", action="store_true", help="Login with username and password")
-parser.add_argument("--add-contact", action="store_true", help="Add a new contact")
-parser.add_argument("--edit-contact", action="store_true", help="Edit an existing contact")
-parser.add_argument("--delete-contact", action="store_true", help="Delete a contact")
-parser.add_argument("--view-contacts", action="store_true", help="View all contacts")
-parser.add_argument("--search-name", action="store_true", help="Search contacts by name")
-parser.add_argument("--search-email", action="store_true", help="Search contacts by email")
-parser.add_argument("--search-phone", action="store_true", help="Search contacts by phone number")
+parser.add_argument("--register-user", help="Register a new user")
+parser.add_argument("--login-user", help="Login with username and password")
+parser.add_argument("--add-contact", help="Add a new contact")
+parser.add_argument("--edit-contact", help="Edit an existing contact")
+parser.add_argument("--delete-contact", help="Delete a contact")
+parser.add_argument("--view-contacts", help="View all contacts")
+parser.add_argument("--search-name", help="Search contacts by name")
+parser.add_argument("--search-email", help="Search contacts by email")
+parser.add_argument("--search-phone", help="Search contacts by phone number")
+parser.add_argument("--add-user", help="Add a new user (admin only)")
+parser.add_argument("--delete-user", help="Delete a user (admin only)")
+parser.add_argument("--register-admin", help="Register the admin")
+parser.add_argument("--login-admin", help="Login the admin")
 args = parser.parse_args()
 
 contact_manager = ContactManager()
 contact_manager.load_contacts_from_file(args.contacts_file)
 contact_manager.load_users_from_file(args.users_file)
+contact_manager.load_admins_from_file(args.admins_file)
 
-if args.register:
+if args.register_admin:
+    register_admin()
+    contact_manager.save_admins_to_file(args.admins_file)
+elif args.login_admin:
+    contact_manager.load_admins_from_file(args.admins_file)
+    admin_check = login_admin()
+    if admin_check:
+        while True:
+            action = input("Choose an action (addUser/editUser/deleteUser/viewUser/\
+addContact/editContact/deleteContact/viewContact/quit): ")
+            if action == "addUser":
+                register_user()
+            elif action == "editUser":
+                edit_user()
+            elif action == "deleteUser":
+                delete_user()
+            elif action == "viewUser":
+                view_users()
+            elif action == "addContact":
+                add_contact()
+            elif action == "editContact":
+                edit_contact()
+            elif action == "deleteContact":
+                delete_contact()
+            elif action == "viewContact":
+                view_contacts()
+            elif action == "quit":
+                contact_manager.save_users_to_file(args.users_file)
+                contact_manager.save_contacts_to_file(args.contacts_file)
+                break
+            else:
+                print("Only admin users can perform this action.")
+elif args.register_user:
     register_user()
     contact_manager.save_users_to_file(args.users_file)
-elif args.login:
+elif args.login_user:
     contact_manager.load_users_from_file(args.users_file)
     username = login_user()
     if username:
