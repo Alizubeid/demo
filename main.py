@@ -4,7 +4,7 @@ from user import User
 from contact_manager import ContactManager
 from admin import Admin
 from encryption_manager import EncryptionManager
-
+from cryptography.fernet import Fernet
 
 
 def register_admin():
@@ -124,7 +124,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--admins-file", help="File to load/save admins", default="admins.pkl")
 parser.add_argument("--contacts-file", help="File to load/save contacts", default="contacts.pkl")
 parser.add_argument("--users-file", help="File to load/save users", default="users.pkl")
-parser.add_argument("--register-user",action="store_true", help="Register a new user")
+parser.add_argument("--register-user", help="Register a new user")
 parser.add_argument("--login-user", help="Login with username and password")
 parser.add_argument("--add-contact", help="Add a new contact")
 parser.add_argument("--edit-contact", help="Edit an existing contact")
@@ -138,8 +138,9 @@ parser.add_argument("--delete-user", help="Delete a user (admin only)")
 parser.add_argument("--register-admin", help="Register the admin")
 parser.add_argument("--login-admin", help="Login the admin")
 args = parser.parse_args()
-
-contact_manager = ContactManager(EncryptionManager)
+encryption_key = "./key.txt"
+encryption_manager = EncryptionManager(encryption_key)
+contact_manager = ContactManager(encryption_manager)
 contact_manager.load_contacts_from_file(args.contacts_file)
 contact_manager.load_users_from_file(args.users_file)
 contact_manager.load_admins_from_file(args.admins_file)
