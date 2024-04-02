@@ -1,52 +1,45 @@
+import pickle
 import re
 
 
-
 class ContactManager:
-    def __init__(self, encryption_manager):
+    def __init__(self):
         self.contacts = []
         self.users = []
         self.admins = []
-        self.encryption_manager = encryption_manager
 
     def load_admins_from_file(self, admins_file):
         try:
             with open(admins_file, 'rb') as file:
-                encrypted_data = file.read()
-                self.admins = self.encryption_manager.decrypt(encrypted_data)
+                self.admins = pickle.load(file)
         except FileNotFoundError:
             print("Admins file not found.")
 
     def save_admins_to_file(self, admins_file):
         with open(admins_file, 'wb') as file:
-            encrypted_data = self.encryption_manager.encrypt(self.admins)
-            file.write(encrypted_data)
+            pickle.dump(self.admins, file)
 
     def load_contacts_from_file(self, contacts_file):
         try:
             with open(contacts_file, 'rb') as file:
-                encrypted_data = file.read()
-                self.contacts = self.encryption_manager.decrypt(encrypted_data)
+                self.contacts = pickle.load(file)
         except FileNotFoundError:
             print("Contacts file not found.")
 
     def save_contacts_to_file(self, contacts_file):
         with open(contacts_file, 'wb') as file:
-            encrypted_data = self.encryption_manager.encrypt(self.contacts)
-            file.write(encrypted_data)
+            pickle.dump(self.contacts, file)
 
     def load_users_from_file(self, users_file):
         try:
             with open(users_file, 'rb') as file:
-                encrypted_data = file.read()
-                self.users = self.encryption_manager.decrypt(encrypted_data)
+                self.users = pickle.load(file)
         except FileNotFoundError:
             print("Users file not found.")
 
     def save_users_to_file(self, users_file):
         with open(users_file, 'wb') as file:
-            encrypted_data = self.encryption_manager.encrypt(self.users)
-            file.write(encrypted_data)
+            pickle.dump(self.users, file)
 
     def add_admin(self, admin):
         self.admins.append(admin)
@@ -104,7 +97,3 @@ class ContactManager:
             elif choice == "phone" and pattern.search(contact.phone):
                 matching_contacts.append(contact)
         return matching_contacts
-
-    # Other methods remain unchanged
-
-# Rest of the code remains the same

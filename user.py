@@ -1,8 +1,11 @@
+import encryption_manager
+
 class User:
     def __init__(self, username, password, email):
         self.username = username
         self.password = password
         self.email = email
+        self.enc = encryption_manager.EncryptionManager()
 
     def authenticate(self, username, password):
         return self.username == username and self.password == password
